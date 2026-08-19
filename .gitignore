@@ -1,0 +1,17 @@
+# Session-local working state — durable across sessions, never committed.
+# STATUS.md / INDEX.md live here by house convention.
+claude/
+
+# Node / build
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# Ingested data snapshots are committed on purpose (see SPEC_01 §7.1);
+# raw untrimmed API dumps are not.
+data/raw/
+
+.DS_Store
+.env
+.env.local
