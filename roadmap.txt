@@ -1,0 +1,11 @@
+DONE-------------------------------------------------------
+Core functions for rolling dice
+Distribution calculator
+
+CURRENT----------------------------------------------------
+Probability for chunks
+
+PENDING----------------------------------------------------
+
+Guards for core functions
+==PHASE 1==
