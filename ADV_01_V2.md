@@ -1,6 +1,7 @@
 # ADV 01 — V2: adversarial pass over `ADV_01.md`
 
-**Input:** `ADV_01.md` (118 lines, written 2026-09-17, untracked in `clix-oracle`).
+**Input:** `ADV_01.md` (118 lines, written 2026-09-17, untracked at the time of writing in the
+repo now named `oraclix`).
 **This document:** the next turn in the loop. It tries to prove `ADV_01.md` wrong and
 records what survived. `ADV_01.md` is **not edited** — versions are immutable, the loop is
 the record.
@@ -657,8 +658,9 @@ Questions with no answer in the rules, in the data, or in vendor documents.
 1. **The scope contradiction.** `SPEC_01.md` §6 lists as explicitly **OUT**: *"Multiplayer,
    networked play, or acting as a play aid during a live game."* `ADV_01.md` user stories 1
    and 2 are *precisely* a play aid during a live game ("the user is in the middle of a
-   heroclix match… pulls out the oraclix app"). One of the two documents has to give. You also
-   named the repo `clix-oracle` and the app "oraclix" — worth settling.
+   heroclix match… pulls out the oraclix app"). One of the two documents has to give.
+   *(Naming half of this is now settled: the project is **oraclix**, and its repo is the
+   renamed `Short-bolt` — the 2024 prototype's home — as of 2026-09-18.)*
    *Recommendation:* keep the spec's OUT and re-frame US1/US2 as **post-hoc and practice**
    analysis ("replay this position", "what should I have done") rather than at-table advice.
    That loses nothing analytically, avoids the unresolvable legality question in dark area 3,

@@ -529,7 +529,7 @@ No code exists; this is the intended layout. Every module is independently testa
 nothing above the rules engine may import network code.
 
 ```
-heroclix-sim/
+oraclix/
 ├─ packages/
 │  ├─ rules/          Ruleset interface + wizkids-2026-07-01 implementation (pure)
 │  ├─ dsl/            Effect DSL schema, interpreter, authored special powers
