@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>oraclix — orientation</title>
+<style>
+:root{
+  font-size:18px;
+  --paper:#fbf9f4;
+  --card:#ffffff;
+  --ink:#1c1a17;
+  --ink-soft:#4a453d;
+  --rule:#ddd6c8;
+  --rule-soft:#ebe5d9;
+  --code-bg:#f4f1e8;
+  --accent:#6b4f1d;
+  --warn-bg:#fdf3e3;
+  --warn-rule:#d9b370;
+  --dead-bg:#fbeeec;
+  --dead-rule:#c98f84;
+  --ok-bg:#eef4ec;
+  --ok-rule:#8fae86;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  font-size:1rem;
+  line-height:1.6;
+}
+.wrap{max-width:52rem;margin:0 auto;padding:2.5rem 1rem 6rem}
+h1,h2,h3,h4{line-height:1.25;font-weight:600;scroll-margin-top:1.5rem}
+h1{font-size:1.9rem;margin:0 0 .3rem}
+h2{font-size:1.35rem;margin:3rem 0 .6rem;padding-bottom:.3rem;border-bottom:2px solid var(--rule)}
+h3{font-size:1.08rem;margin:1.9rem 0 .5rem}
+h4{font-size:.95rem;margin:1.3rem 0 .4rem;color:var(--ink-soft)}
+p,ul,ol{margin:.7rem 0}
+li{margin:.3rem 0}
+a{color:var(--accent)}
+code,pre,.mono{
+  font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+code{font-size:15px;background:var(--code-bg);padding:.08em .3em;border-radius:3px}
+pre{
+  background:var(--code-bg);
+  border:1px solid var(--rule-soft);
+  border-left:3px solid var(--rule);
+  border-radius:4px;
+  padding:.8rem .9rem;
+  margin:.5rem 0 1rem;
+  font-size:14.5px;
+  line-height:1.5;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+pre code{background:none;padding:0;font-size:inherit}
+.lede{font-size:1.1rem;color:var(--ink-soft)}
+.sub{color:var(--ink-soft);font-size:15px;margin-top:.1rem}
+
+/* --- status chips: text first, colour second ---------------------- */
+.chip{
+  display:inline-block;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:14px;
+  line-height:1.25;
+  padding:.08em .45em;
+  border-radius:3px;
+  border:1px solid var(--rule);
+  background:var(--card);
+  white-space:nowrap;
+}
+.chip-current{background:var(--ok-bg);border-color:var(--ok-rule)}
+.chip-proposed{background:var(--warn-bg);border-color:var(--warn-rule)}
+.chip-deferred{background:var(--code-bg);border-color:var(--rule)}
+.chip-verify{background:var(--card);border-color:var(--accent);border-style:dashed}
+.chip-dead{background:var(--dead-bg);border-color:var(--dead-rule)}
+
+/* --- blocks -------------------------------------------------------- */
+.box{
+  background:var(--card);
+  border:1px solid var(--rule);
+  border-radius:5px;
+  padding:1rem 1.1rem;
+  margin:1.2rem 0;
+}
+.box-warn{background:var(--warn-bg);border-color:var(--warn-rule)}
+.box-dead{background:var(--dead-bg);border-color:var(--dead-rule)}
+.box h3,.box h4{margin-top:0}
+.label{
+  display:block;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:14px;
+  color:var(--ink-soft);
+  margin:.9rem 0 .25rem;
+}
+.label strong{color:var(--ink)}
+
+table{border-collapse:collapse;width:100%;max-width:100%;margin:1rem 0;font-size:15.5px}
+th,td{
+  border:1px solid var(--rule-soft);
+  padding:.45rem .55rem;
+  text-align:left;
+  vertical-align:top;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+th{background:var(--code-bg);font-weight:600}
+td.num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:nowrap}
+
+/* --- trace rows ----------------------------------------------------- */
+.trace{list-style:none;padding:0;margin:1rem 0;counter-reset:step}
+.trace>li{
+  background:var(--card);
+  border:1px solid var(--rule);
+  border-radius:5px;
+  padding:.7rem .9rem .7rem 3rem;
+  margin:.55rem 0;
+  position:relative;
+}
+.trace>li::before{
+  counter-increment:step;
+  content:counter(step);
+  position:absolute;left:.85rem;top:.7rem;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:15px;font-weight:700;color:var(--accent);
+}
+.owner{
+  display:inline-block;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:14px;
+  background:var(--code-bg);
+  border:1px solid var(--rule-soft);
+  border-radius:3px;
+  padding:.05em .4em;
+  margin-right:.4rem;
+}
+.trace .data{margin:.4rem 0 0}
+.trace pre{margin:.45rem 0 0}
+
+/* --- index ---------------------------------------------------------- */
+.toc{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:1rem 1.1rem;margin:1.6rem 0}
+.toc h2{margin:0 0 .5rem;font-size:1.1rem;border:0;padding:0}
+.toc ol{margin:.3rem 0 0;padding-left:1.6rem}
+.toc li{margin:.35rem 0}
+.toc .chip{margin-left:.35rem}
+
+.backlink{
+  position:fixed;right:1rem;bottom:1rem;
+  background:var(--card);border:1px solid var(--rule);border-radius:4px;
+  padding:.35rem .6rem;font-size:14px;text-decoration:none;
+  box-shadow:0 1px 4px rgba(0,0,0,.09);
+}
+footer{margin-top:3.5rem;padding-top:1rem;border-top:2px solid var(--rule);font-size:15.5px;color:var(--ink-soft)}
+
+@media (max-width:40rem){
+  .wrap{padding:1.5rem 1rem 3rem}
+  h1{font-size:1.55rem}
+  h2{font-size:1.2rem}
+  /* a fixed affordance overlays body copy at phone width — hide it rather
+     than letting it cover the text the reader came for */
+  .backlink{display:none}
+  .trace>li{padding-left:.9rem}
+  .trace>li::before{position:static;display:block;margin-bottom:.2rem}
+  table{font-size:14.5px}
+  th,td{padding:.35rem .4rem}
+  /* long chip labels must wrap, or they force the table past the viewport */
+  .chip{white-space:normal}
+  .toc ol{padding-left:1.2rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>oraclix</h1>
+<p class="lede">A HeroClix probability engine. This page is an orientation layer over a
+five-document design package — it is not the specification, and it is not evidence that
+anything is built.</p>
+
+<div class="box box-warn">
+<h3>Read this first: nothing is implemented</h3>
+<p>oraclix has <strong>no application code</strong>. The repository holds five design
+documents and a 2024 dice prototype with four known defects. Every component on this page
+is <span class="chip chip-proposed">Proposed</span> unless its chip says otherwise.</p>
+<p>The package is also <strong>internally inconsistent on purpose</strong>: it is the record
+of an adversarial review loop, and the newest round refuted parts of the oldest. Where
+documents disagree, <strong>this page follows the newest</strong>
+(<code>ADV_V04</code> &gt; <code>ADV_V03</code> &gt; <code>ADV_01_V2</code> &gt;
+<code>SPEC_01</code>) and marks the superseded statement
+<span class="chip chip-dead">Superseded</span>. Folding those corrections back into
+<code>SPEC_01</code> is an open task, not a finished one.</p>
+<p class="sub">Package state: branch <code>main</code> at <code>50af635</code>, 2026-09-21.
+Status vocabulary used throughout: Current · Proposed · Deferred · Verify · Superseded.</p>
+</div>
+
+<nav class="toc" aria-label="Contents">
+<h2>Contents</h2>
+<ol>
+<li><a href="#boundary">What it does, and does not do</a> <span class="chip chip-proposed">Proposed</span></li>
+<li><a href="#status">Implementation status, component by component</a> <span class="chip chip-current">Current fact</span></li>
+<li><a href="#stack">Stack, ownership, and what each part must not become</a> <span class="chip chip-proposed">Proposed</span></li>
+<li><a href="#walkthrough">Walkthrough: three attacks traced end to end</a> <span class="chip chip-proposed">Proposed</span></li>
+<li><a href="#mechanism">The mechanism: exact enumeration over 36 ordered outcomes</a> <span class="chip chip-proposed">Proposed</span></li>
+<li><a href="#termination">The decision that changes the output: termination</a> <span class="chip chip-verify">Open — A12</span></li>
+<li><a href="#anatomy">Data anatomy: upstream record to in-app state</a> <span class="chip chip-proposed">Proposed</span></li>
+<li><a href="#vocabulary">Vocabulary: the words that do not exist</a> <span class="chip chip-current">Current fact</span></li>
+<li><a href="#testing">Testing and the operational lifecycle</a> <span class="chip chip-proposed">Proposed</span></li>
+<li><a href="#ladder">Later phases: the build ladder</a> <span class="chip chip-deferred">Deferred</span></li>
+<li><a href="#open">Open decisions that belong to Ivan</a> <span class="chip chip-verify">Verify</span></li>
+<li><a href="#docs">Further detail: the document map</a> <span class="chip chip-current">Current fact</span></li>
+</ol>
+</nav>
+
+<!-- ================================================================= -->
+<h2 id="boundary">1. What it does, and does not do</h2>
+
+<div class="box">
+<p style="margin:0"><strong>A HeroClix position plus two real dials → oraclix → the
+probability that one character eliminates the other, with the model that produced it stated
+on the result.</strong></p>
+<p style="margin:.6rem 0 0">oraclix does <strong>not</strong> play the game, advise at the
+table, or decide who is winning a tournament match.</p>
+</div>
+
+<table>
+<tr><th style="width:9rem">Does</th><td>Computes outcome probabilities for a <strong>knock-out-only duel</strong> between Modern-Age characters, driven by real dial data. Exactly, by enumeration, where the state space allows; by seeded simulation beyond that.</td></tr>
+<tr><th>Does not</th><td>Act as a play aid during a live match (ruled out, <code>ADV_V03</code> A1, matching <code>SPEC_01</code> §6). Model victory points as a victory condition, or the tournament clock (A3). Support more than two players (A10). Parse special-power prose automatically — authoring is manual (<code>SPEC_01</code> §6).</td></tr>
+<tr><th>Public handoff</th><td>The committed per-set data snapshot and search index that ship with the app, plus every reported number carrying its regime label.</td></tr>
+<tr><th>Offline machinery</th><td>The ingest CLI and the optional CORS proxy. <strong>The app itself never calls HCUnits</strong> — see <a href="#anatomy">§7</a>; this is forced, not chosen.</td></tr>
+</table>
+
+<p>The boundary that matters most is not public-versus-private — the package describes a local
+app with no accounts, no authentication and no secrets. It is <strong>build time versus run
+time</strong>. The
+upstream API sends no CORS headers at all, so a browser cannot call it. The ingest CLI runs
+on a developer machine and commits a snapshot; the running app reads only that snapshot.</p>
+
+<div class="box box-warn">
+<p style="margin:0"><strong>A scope decision with a consequence nobody intended.</strong>
+Dropping victory points and the clock looks like simplification. It is not. The
+<code>build total + 100</code> victory-point threshold (§5.2) and the tournament clock
+(§5.3a) are the game's <em>only</em> stopping guarantees — the rules' own answer to "what if
+you grind and cannot finish them off". Remove both and only elimination remains, and
+elimination is not guaranteed. <strong>A knock-out-only engine therefore models a
+longer-running game than real HeroClix, not a simpler one.</strong> This is the subject of
+<a href="#termination">§6</a> and it is the largest open question in the package.</p>
+</div>
+
+<!-- ================================================================= -->
+<h2 id="status">2. Implementation status, component by component</h2>
+
+<p>The guide this page was built to insists a polished card must never make a planned
+component look implemented. So, plainly:</p>
+
+<table>
+<tr><th style="width:12rem">Component</th><th style="width:9rem">Status</th><th>Evidence</th></tr>
+<tr><td>Dice layer — rolling, distribution, <code>moreThan</code>/<code>lessThan</code>/<code>between</code></td><td><span class="chip chip-current">Current</span>, with defects</td><td><a href="../proto.js">proto.js</a>, 103 lines, 2024. Four defects listed below.</td></tr>
+<tr><td>Rules engine</td><td><span class="chip chip-proposed">Proposed</span></td><td>No code. Interface sketched in <code>SPEC_01</code> §7.2 — and that sketch is superseded.</td></tr>
+<tr><td>Exact probability engine</td><td><span class="chip chip-proposed">Proposed</span></td><td>No code. Design in <code>SPEC_01</code> §7.3.</td></tr>
+<tr><td>Monte Carlo runner</td><td><span class="chip chip-proposed">Proposed</span></td><td>No code. <code>proto.js</code> samples 200,000 rolls to approximate a distribution computable exactly in 36 operations.</td></tr>
+<tr><td>Effect DSL for special powers</td><td><span class="chip chip-proposed">Proposed</span></td><td>No code, no schema file. Shape in <code>SPEC_01</code> §7.5.</td></tr>
+<tr><td>Ingest CLI</td><td><span class="chip chip-proposed">Proposed</span></td><td>No code — and its documented endpoint has since died.</td></tr>
+<tr><td>Map, terrain, line of fire</td><td><span class="chip chip-proposed">Proposed</span></td><td>No code. Upstream geometry data exists; the model is undecided (<code>SPEC_01</code> Q3).</td></tr>
+<tr><td>Game AI, policies, SPRT harness</td><td><span class="chip chip-deferred">Deferred</span></td><td>Research complete in <code>SPEC_01</code> §7.4; the choice is deliberately open (Q1).</td></tr>
+<tr><td>PWA shell and UI</td><td><span class="chip chip-proposed">Proposed</span></td><td>No code.</td></tr>
+<tr><td>Data snapshot <code>data/sets/</code></td><td><span class="chip chip-proposed">Proposed</span></td><td>The directory does not exist. No set has been ingested.</td></tr>
+</table>
+
+<h3>Four statements in <code>SPEC_01</code> are known dead</h3>
+<p><code>SPEC_01</code> is the primary specification and still the best single description of
+the project's intent. It has not been revised since 2026-08-19, and four of its statements
+have since been refuted. Revising it is the next top-down deliverable
+(<code>ADV_V04</code> §4.6, question A18).</p>
+
+<table>
+<tr><th style="width:7rem">Where</th><th>Statement</th><th style="width:11rem">Status</th></tr>
+<tr><td><code>SPEC_01</code> §7.2</td><td>The rules engine is a <code>Generator&lt;DecisionRequest, AttackOutcome, Decision&gt;</code> driven by three consumers.</td><td><span class="chip chip-dead">Superseded</span> — the exact enumerator cannot fork a generator. <a href="#mechanism">§5</a></td></tr>
+<tr><td><code>SPEC_01</code> §7.1</td><td>Ingest step 2 is <code>GET /api/v1/units/?set_id=&lt;id&gt;</code>.</td><td><span class="chip chip-dead">Superseded</span> — returns an empty result set for every set as of 2026-09-21. <a href="#anatomy">§7</a></td></tr>
+<tr><td><code>SPEC_01</code> §6</td><td>Knock-out-only scope, with no statement about termination.</td><td><span class="chip chip-dead">Superseded</span> — the model has no stopping rule. <a href="#termination">§6</a></td></tr>
+<tr><td><code>SPEC_01</code> rainy&nbsp;path&nbsp;12</td><td>Non-character units are filtered with <code>collectible</code> and <code>rank</code> respected.</td><td><span class="chip chip-dead">Superseded</span> — <code>rank</code> was <code>null</code> on all 25 sampled records. Filter on <code>type</code>.</td></tr>
+</table>
+
+<h3>The four defects in the 2024 prototype</h3>
+<p>These matter because the plan is to compose upward from exactly these functions
+(<code>ADV_V04</code> §3.4). Fix the fourth first — reproducibility is structural.</p>
+<ol>
+<li><code>protoCombat</code> implements "a 2 always misses" but <strong>not "a 12 always
+hits"</strong>. §12.3b says all targets of a critical hit become hit <em>even if the attack
+would normally miss</em>. At a defence-minus-attack gap of 13 — reachable with printed values,
+attack 6 against defence 19 — the function returns <code>0.0000</code> where the answer is
+<code>0.0278</code>.</li>
+<li><code>createDistribution</code> computes <code>results.indexOf(i+1) - results.indexOf(i)</code>,
+which returns garbage for any outcome that never came up, because <code>indexOf</code>
+returns <code>-1</code>. It survives only because 200,000 samples populate every bucket.</li>
+<li><code>protoCombat</code> reads the global <code>config</code> despite taking
+<code>(dist, atk, def)</code>. An ambient global is the one thing that makes a function
+non-composable — precisely what the bottom-up plan depends on.</li>
+<li><code>rollDie</code> uses <code>Math.random()</code>, which cannot be seeded, so no
+simulation is reproducible.</li>
+</ol>
+
+<!-- ================================================================= -->
+<h2 id="stack">3. Stack, ownership, and what each part must not become</h2>
+
+<p>Six layers, dependencies pointing strictly downward, nothing above the rules engine
+permitted to import network code (<code>SPEC_01</code> §5, §8).</p>
+
+<pre>PWA shell          mobile-first, offline, installable
+UI                 force builder · odds panel · results
+Game AI            policies; search separated from evaluation
+Simulation core    exact enumerator  |  seeded Monte Carlo
+Rules engine       versioned, swappable  +  Effect DSL
+Data layer         committed snapshot + cache  &lt;--  ingest CLI + proxy</pre>
+
+<table>
+<tr><th>Layer</th><th>Does</th><th>Must not become</th><th style="width:7.5rem">Status</th></tr>
+<tr><td>Rules engine</td><td>Takes a state and a roll, returns a state. Pure, no input or output, no ambient randomness. Stamped with a ruleset version.</td><td>A place where player decisions get made silently. If it chooses for a player, both the exact engine and the simulation are invalidated.</td><td><span class="chip chip-proposed">Proposed</span></td></tr>
+<tr><td>Exact enumerator</td><td>Walks every branch with its probability weight and sums the leaves.</td><td>A memoised solver that trusts its own cache. On a cyclic state graph that returns a believable wrong number — <a href="#mechanism">§5</a>.</td><td><span class="chip chip-proposed">Proposed</span></td></tr>
+<tr><td>Monte Carlo runner</td><td>Drives the same rules engine with a policy and a seeded generator, off the main thread.</td><td>A substitute for the exact layer where exact is affordable. The two cross-check each other; that gate is the main defence against a plausible-but-wrong engine.</td><td><span class="chip chip-proposed">Proposed</span></td></tr>
+<tr><td>Effect DSL</td><td>Encodes special-power prose by hand, keeping <code>source_text</code> verbatim beside every encoding.</td><td>A natural-language parser. Authoring is manual by decision, not by limitation.</td><td><span class="chip chip-proposed">Proposed</span></td></tr>
+<tr><td>Ingest CLI</td><td>The only code that talks to HCUnits. Trims, validates against a schema, fails loudly on drift, commits a snapshot.</td><td>A runtime dependency. The snapshot is the source of truth; the API is never on the request path.</td><td><span class="chip chip-proposed">Proposed</span></td></tr>
+<tr><td>Proxy</td><td>One serverless function that adds CORS headers for sets absent from the snapshot.</td><td>Load-bearing. Purely additive: with the proxy down the app still works.</td><td><span class="chip chip-proposed">Proposed</span></td></tr>
+<tr><td>Game AI</td><td>Evaluation separate from search; candidate move generation, not exhaustive.</td><td>The thing a reported probability silently depends on without saying so.</td><td><span class="chip chip-deferred">Deferred</span></td></tr>
+</table>
+
+<div class="box">
+<h4>The honesty constraint that falls out of the architecture</h4>
+<p style="margin:.2rem 0 0">A win probability is a property of a position <em>plus both
+players' policies</em>, not of the position alone. Under genuinely optimal play by both sides
+the number is policy-independent — and that is attainable here only while the state space is
+small. The package puts the boundary at roughly <strong>1v1 and one-against-many exact,
+three-against-three and up measured</strong>. The two must never share a label.</p>
+</div>
+
+<table>
+<tr><th>Rung</th><th class="num" style="width:9rem">State space</th><th>Honest claim</th></tr>
+<tr><td>1v1 adjacent, no powers, no map</td><td class="num">1.9 × 10³</td><td>Strongly solved; exact, instant</td></tr>
+<tr><td>1v3 or 2v2, no powers</td><td class="num">1.9 × 10⁶</td><td>Exact on a phone</td></tr>
+<tr><td>1v1 with powers</td><td class="num">1.9 × 10⁶</td><td>Exact</td></tr>
+<tr><td>1v1 on a 16×16 map</td><td class="num">1.2 × 10⁸</td><td>Laptop yes, phone borderline</td></tr>
+<tr><td>3v3, no powers</td><td class="num">1.8 × 10⁹</td><td>Laptop only, 7–14 GB</td></tr>
+<tr><td>4v4, no powers</td><td class="num">1.7 × 10¹²</td><td>Past the published enumeration boundary</td></tr>
+<tr><td>3v3 with map and powers</td><td class="num">4.4 × 10³²</td><td>Measured policy win rate only</td></tr>
+</table>
+<p class="sub">Source: <code>ADV_V04</code> §3.6. These are engineering arithmetic over
+published anchors, <strong>not measurements of this engine</strong> — no engine exists to
+measure. <span class="chip chip-verify">Verify</span> once rung 2 is built.</p>
+
+<!-- ================================================================= -->
+<h2 id="walkthrough">4. Walkthrough: three attacks traced end to end</h2>
+
+<p>Three scenarios, each teaching a different path. All three use <strong>real printed
+values</strong> taken from the design package; none of the data below is invented. What is
+proposed is the <em>engine behaviour</em>, because no engine exists — so read every trace as
+"this is what the design says should happen", never as a recorded run.</p>
+
+<h3>Scenario A — the ordinary attack, exactly enumerable</h3>
+
+<p class="label"><strong>Provenance:</strong> real source artifact. Attacker
+<code>d400GL-001bt</code> Green Construct, printed stat line 5 / 10 / 17 / 3, no powers
+(<code>ADV_V04</code> §2.2). Defender <code>2099001</code> Hulk at click 1, verified live
+against the upstream API on 2026-08-19 (<code>SPEC_01</code> §3.4). The arithmetic below is
+exact and was computed for this page. <strong>Two stipulations, so nothing here is mistaken
+for a data fact:</strong> the scenario assumes an otherwise empty board, and the package
+quotes only Hulk's <em>click</em> record — not his special powers — so a real engine would
+still have to check those before trusting step 5.</p>
+
+<p>The defender's click, as the upstream API returns it. This is one element of the
+<code>dial[]</code> array — upstream HCUnits' shape, <strong>not</strong> an oraclix
+contract, because oraclix has no contract yet:</p>
+
+<pre>{
+  "click_number": 1,
+  "starting_line": "auto",
+  "speed_power": "leap_climb",
+  "speed_value": 8,
+  "attack_power": "super_strength",
+  "attack_value": 10,
+  "defense_power": "invulnerability",
+  "defense_value": 19,
+  "damage_value": 4
+}</pre>
+
+<ol class="trace">
+<li><span class="owner">rules engine</span> <strong>Compute the minimum roll needed.</strong>
+§12.2a: the difference between the target's calculated defence and the attacker's calculated
+attack value.
+<p class="data">Defence 19 − attack 10 = <strong>9 needed on 2d6</strong>. The empty-board
+stipulation means no Perplex, no close-combat expert and no Combat Reflexes are modifying
+anything, so calculated values equal printed values.</p></li>
+
+<li><span class="owner">rules engine</span> <strong>Enumerate the 36 ordered outcomes.</strong>
+Not the 11-outcome sum. Two rules read the faces rather than the total: §12.3b and §12.3c
+require the dice to <em>actually show</em> double six and double one, and §12.6b grants
+knockback on doubles 2-2 through 6-6 with a hit.
+<p class="data">36 equally likely ordered pairs. Reduction to a sum is legal only
+<em>after</em> critical and doubles classification.</p></li>
+
+<li><span class="owner">rules engine</span> <strong>Classify every outcome.</strong>
+<pre>hit        total &gt;= 9            10/36 = 27.78%
+critical hit    faces 6-6        1/36 =  2.78%   (already inside the 10)
+critical miss   faces 1-1        1/36 =  2.78%
+knockback granted  5-5 and 6-6   2/36 =  5.56%   (the only doubles that also hit)</pre>
+<p class="data">Note 4-4 totals 8 and therefore misses — which is exactly why the sum is not
+a sufficient statistic: at a needed roll of 8, 4-4 and 6-2 share a total but only one grants
+knockback.</p></li>
+
+<li><span class="owner">rules engine</span> <strong>Resolve the critical miss against the
+attacker.</strong> §12.3c: all targets become missed and the attacker takes 1 unavoidable
+damage. §12.4d: unavoidable damage cannot be reduced or prevented. §24.1: a bystander has no
+dial, so any damage knocks it out.
+<p class="data">On 1-1 — 2.78% of attacks — <strong>the Green Construct knocks itself
+out</strong>. A real, printed outcome that a naive model never produces.</p></li>
+
+<li><span class="owner">rules engine</span> <strong>Fold in the evade branch — or skip
+it.</strong> Super Senses is a d6 on 5–6 when a character would be hit. A critical hit skips
+evasion entirely, because the target "becomes hit".
+<p class="data"><strong>No branch here.</strong> Hulk's click 1 shows Invulnerability, not
+Super Senses, so there is no evade roll to model. An engine that unconditionally multiplies
+P(hit) × P(not evaded) is wrong twice over.</p></li>
+
+<li><span class="owner">rules engine</span> <strong>Apply exactly one damage reducer.</strong>
+§12.5b: only one effect that reduces damage taken may apply to a single instance of damage,
+and the defender chooses which. §12.4a floors damage dealt at 0.
+<pre>normal hit    max(0, 3 - 2) = 1 click
+critical hit  max(0, 3 + 1 - 2) = 2 clicks   (§12.3b adds +1)</pre>
+<p class="data">The choice is trivial here — Invulnerability is the only reducer on this
+click — so this attack does not exercise the decision. Scenario B does.</p></li>
+
+<li><span class="owner">exact engine</span> <strong>Convolve into a damage
+distribution.</strong>
+<pre>P(0 clicks) = 26/36 = 72.22%     (misses, including the critical miss)
+P(1 click)  =  9/36 = 25.00%
+P(2 clicks) =  1/36 =  2.78%
+expected    = 11/36 = 0.3056 clicks per attack</pre></li>
+
+<li><span class="owner">exact engine</span> <strong>Map onto the dial for the probability of
+a knock-out.</strong>
+<p class="data"><span class="chip chip-verify">Verify</span> <strong>Not computable from the
+package.</strong> This needs Hulk's full dial — how many clicks remain to a knock-out click —
+and the design documents quote only click 1. The honest output is the damage distribution plus
+a statement that the dial is unavailable, not a guessed knock-out probability.</p></li>
+</ol>
+
+<h3>Scenario B — the attack that must stop and ask</h3>
+
+<p class="label"><strong>Provenance:</strong> rules text, verified. Teaches why the rules
+layer cannot be a single call, and why line of fire is needed at the very first rung.</p>
+
+<p>Add one Probability Control character to the board. Nothing about the dice changes; the
+shape of the computation changes completely.</p>
+
+<ol class="trace">
+<li><span class="owner">rules engine</span> <strong>Check whether Probability Control can
+reach the roll at all.</strong> §27.4f, verbatim: a targeted character must be within range
+<strong>and line of fire</strong>, minimum range 4.
+<p class="data">This is the finding that reorders the whole build plan. The project's build
+ladder defers line of fire about twelve rungs, on the reasoning that close combat never needs
+it. <strong>Half of that is right</strong> — §11.1 says a close attack needs no line of fire
+drawn. But to answer "what is the probability this attack hits" in any position containing a
+Probability Control character, you must already know who has line of fire to whom. Outwit
+(§27.4k) and Perplex (§27.4j) carry the same requirement.</p></li>
+
+<li><span class="owner">rules engine</span> <strong>Suspend after the roll is seen and
+return a decision request.</strong> The reroll is chosen <em>after</em> the result is known.
+<p class="data">The engine emits a request — who may act, what kind of choice, what the
+options are — and waits. It does not decide.</p></li>
+
+<li><span class="owner">caller</span> <strong>Answer it, three different ways.</strong>
+<p class="data">The exact enumerator takes <em>every</em> option, each weighted. The sampler
+takes one, chosen by a policy with a seeded generator. The interface asks the person. One
+rules implementation, three drivers.</p></li>
+
+<li><span class="owner">rules engine</span> <strong>Run the contest, not the
+event.</strong> §21.3b: the active player gets the first chance to reroll, then the opponent,
+"repeated until both players decline". §21.4 runs a second such loop for die
+<em>replacement</em>. §21.11 scopes once-per-turn limits <strong>per character</strong>, not
+per player — so a character may use Probability Control on its own turn and on the
+opponent's.
+<p class="data">Each exercised reroll multiplies the space by another 36. Depth is therefore
+a function of <strong>force composition</strong>, not a constant. The engine derives the
+bound from board state before enumerating, and declines to sampling above a configured
+ceiling rather than blocking.</p></li>
+
+<li><span class="owner">rules engine</span> <strong>Then the reducer choice, which is also
+a decision.</strong> §12.5b hands the defender the choice of which single reducer applies.
+<p class="data">With two reducers available this is a real branch, and the exact engine must
+model the damage-minimising choice. One card found in the sweep — a One-Shot reading "reduce
+damage taken by 1 <em>in addition to other effects</em>" — explicitly overrides the
+one-reducer limit, so reducers must be modelled as a selection <em>with exceptions</em>, never
+as a constant.</p></li>
+</ol>
+
+<div class="box box-warn">
+<p style="margin:0"><strong>Where the enumeration bound genuinely breaks.</strong> Two cards
+in a 143-unit sample grant rerolls with no limiter in their text at all — one lets a character
+reroll the roll an opponent just rerolled; another rerolls a friendly character's
+Blades/Claws/Fangs result. A third lets a character roll three dice instead of two and, after
+any rerolls or replacements, ignore one. These are not hypothetical: they are printed card
+text. Four non-d6 custom dice also exist, and §21.3a says rolls using dice that are not d6s
+cannot be rerolled. How deep the loop actually goes is
+<span class="chip chip-verify">unresolved</span> — carried as questions E2 through E5 with
+stated working assumptions.</p>
+</div>
+
+<h3>Scenario C — the attack that proves the model has no ending</h3>
+
+<p class="label"><strong>Provenance:</strong> real source artifact plus verified rules text.
+<code>ffgc047b</code> Slade Wilson carries Impervious <strong>and</strong> Regeneration on the
+same dial (<code>ADV_V04</code> §2.1). The conclusion is a graph fact, not a dice estimate.</p>
+
+<ol class="trace">
+<li><span class="owner">rules engine</span> <strong>Deal damage into a reducer.</strong>
+§12.4a floors damage dealt at 0. Impervious reduces by 2 and adds an independent d6 that
+reduces damage to 0 on 5–6.
+<pre>attacker damage 2, defender reduces 2
+  normal hit    max(0, 2 - 2) = 0 damage, forever
+  critical hit  max(0, 2 + 1 - 2) = 1 damage, probability 1/36</pre></li>
+
+<li><span class="owner">rules engine</span> <strong>Heal it back.</strong> §27.3k
+Regeneration: roll a d6, heal a number of clicks equal to half the result. §6.11 settles the
+rounding — a fractional value rounds <strong>up</strong>. §6.6b caps ordinary healing at the
+starting line.
+<pre>heal ceil(d6 / 2) -&gt; {1, 1, 2, 2, 3, 3}   mean 2.0 clicks per use
+healing outpaces damage 72x against Invulnerability, ~108x against Impervious</pre></li>
+
+<li><span class="owner">exact engine</span> <strong>Notice that the ratio is the weak
+argument, and replace it.</strong>
+<p class="data">Maximum damage through per attack is <strong>1 click</strong>. Minimum heal
+per use is <strong>1 click</strong>. So net clicks accumulated per round is <strong>≤ 0
+always</strong> — the knock-out click is not improbable, it is <strong>unreachable in the
+state graph</strong>. That is detectable by plain reachability, with no dice arithmetic at
+all. And because Regeneration costs a POWER action, a regenerating character is not
+attacking — so if both sides carry Impervious and Regeneration, neither can ever reach the
+other's knock-out click.</p></li>
+
+<li><span class="owner">exact engine</span> <strong>Report three numbers, because two no
+longer sum to one.</strong>
+<p class="label" style="margin-top:.6rem"><strong>Illustrative</strong> — the shape of the
+output, with the worked example's figures. Not a computed result for any real pair:</p>
+<pre>P(A eliminates B) = 0.62 · P(B eliminates A) = 0.31 · P(neither, unbounded) = 0.07
+KO-only regime. Victory points (§5.2) and clock (§5.3a) not modelled.</pre>
+<p class="data">For the Slade Wilson mirror the triple is
+<code>P(A) = 0, P(B) = 0, P(neither) = 1</code>. Note what that does to a naive
+normalisation: <code>P(A) / (P(A) + P(B))</code> is <strong>NaN</strong>. That test belongs in
+the suite before a user interface divides by zero in front of someone.</p></li>
+</ol>
+
+<p>This is not a constructed edge case. Of 297 Modern characters measured, <strong>49% carry
+a damage reducer</strong>, and five carry a reducer and a healer on the same dial.</p>
+
+<!-- ================================================================= -->
+<h2 id="mechanism">5. The mechanism: exact enumeration over 36 ordered outcomes</h2>
+
+<p>The distinctive claim is not simulation — anyone can simulate. It is that a single attack
+is a <em>finite</em> space that can be enumerated exactly, so the answer carries no sampling
+error at all. The smallest useful loop:</p>
+
+<pre>ordered 2d6 (36 outcomes)
+   -&gt; classify: critical hit / critical miss / doubles-knockback / hit / miss
+   -&gt; [DECISION: reroll?]  each exercised reroll multiplies by 36
+   -&gt; evade d6 (6 outcomes), skipped entirely on a critical hit
+   -&gt; [DECISION: which single reducer?]
+   -&gt; damage convolution
+   -&gt; dial index  -&gt; P(knock-out)</pre>
+
+<p>With no rerolls and no Shape Change that is at most 36 × 6 × 6 = 1,296 leaves — trivially
+exact. Shape Change multiplies by 6. Each available Probability Control reroll multiplies by
+36. Two Probability Control characters per side is roughly 1.7 million leaves: still
+enumerable, no longer free. So the engine computes its bound <em>first</em> and declines to
+sampling above a ceiling, rather than silently taking minutes on a phone.</p>
+
+<h3>Why the substrate in <code>SPEC_01</code> §7.2 had to change</h3>
+
+<p>The specification proposes a JavaScript generator that yields at each decision and is
+driven by three consumers. The idea is right; the substrate cannot carry it.</p>
+
+<div class="box box-dead">
+<p style="margin:0"><span class="chip chip-dead">Superseded</span> <strong>A generator is
+single-shot and cannot be cloned</strong>, so the exact enumerator cannot resume the same
+suspension once per branch — reroll-yes and reroll-no from one identical post-roll state.
+Four independent confirmations: ECMA-262 §27.8.2 gives a generator one execution context with
+no duplicate operation; the standard interface exposes only <code>next</code>,
+<code>return</code> and <code>throw</code>; the "generator clone" proposal died unresolved in
+2014; and structured cloning explicitly refuses functions. Not a JavaScript quirk, either —
+OCaml 5 effects are one-shot for the same reason, and Python refuses to deep-copy a generator.</p>
+<p style="margin:.6rem 0 0">This answers <code>SPEC_01</code>'s own reviewer-guide item 6,
+which asked whether the fork was cheap. <strong>It is not expensive. It is impossible.</strong></p>
+</div>
+
+<p>A survey of fourteen engines — among them XMage, Forge, boardgame.io, OpenSpiel and
+SabberStone — found that <strong>none</strong> composes rules stages as functions. The reason
+is structural: currying is arity adaptation, and <code>f(a)</code> is a complete function
+that has not been called yet, not a computation that has stopped and is waiting. The pattern
+every forkable engine converged on independently:</p>
+
+<p class="label"><strong>Proposed</strong> — the replacement interface. No implementation
+exists; this is a shape, not a published signature:</p>
+
+<pre>// state is PLAIN DATA: structuredClone-able, no closures, no class instances,
+// PRNG state stored inside it
+step(state)   // -&gt; {tag:'chance',   outcomes:[[state', prob], ...]}
+              // -&gt; {tag:'decision', who, kind, options:[...]}
+              // -&gt; {tag:'done',     result}
+apply(state, choice) -&gt; state'</pre>
+
+<p>The exact enumerator recurses over <code>outcomes</code> accumulating probability ×
+value; the sampler picks from the same list with a seeded generator; the interface renders
+<code>options</code>. One rules implementation, three drivers — what §7.2 promised, on a
+substrate that can deliver it.</p>
+
+<p><strong>Where pure composition still holds.</strong> The boundary is precise: a
+computation stays purely composable exactly as long as every branch condition is a function
+of the roll and the static setup, and it stops the moment a branch condition is a player's
+discretionary choice. Rolling, distributions, the comparison helpers, modifier arithmetic,
+damage convolution and dial indexing are all pure and should stay that way. Probability
+Control is over the line for three separable reasons: it is decided after seeing the roll, it
+spends a shared per-character resource, and it contests with the opponent in a loop.</p>
+
+<div class="box box-warn">
+<h4>The one implementation detail most likely to produce a plausible wrong answer</h4>
+<p>Once healing exists the state graph has <strong>cycles</strong>, and on a cyclic graph the
+Bellman equations <strong>do not have a unique solution</strong>. A memoised recursive
+win-probability solver that caches a provisional value will silently settle on a wrong fixed
+point and return a believable number — no crash, no warning.</p>
+<p style="margin-bottom:0"><strong>The fix is one line and belongs in the specification
+before the code is written:</strong> initialise every state's value at <strong>0</strong> and
+iterate upward, taking the <strong>least</strong> fixed point. That sequence is monotone
+increasing, which is what makes a turn horizon legitimate as a <em>lower bound</em> rather
+than merely an approximation.</p>
+</div>
+
+<!-- ================================================================= -->
+<h2 id="termination">6. The decision that changes the output: termination</h2>
+
+<p>This is the question a reader should leave with, because it determines what the engine
+<em>emits</em>, not merely how it is phrased.</p>
+
+<p>The real game ends when one side has no characters left, when a player banks victory
+points equal to build total plus 100 (§5.2), or when the clock runs out (§5.3a), with §5.4
+resolving even a simultaneous double defeat by victory points and then a 2d6 roll-off.
+<strong>There is no draw in HeroClix.</strong> Searched across the full rulebook text,
+<code>loop</code>, <code>infinite</code>, <code>stalling</code>, <code>slow play</code> and
+<code>repetition</code> each occur <strong>zero</strong> times. Termination is delegated
+entirely to the threshold and the clock — and this project removed both.</p>
+
+<p>Nor can a fix be borrowed. Backgammon provably terminates by exhibiting a potential
+function that increases even through hits; HeroClix with Regeneration has no monotone
+potential, because clicks move both ways, healing has no per-game budget, and damage can be
+exactly 0. Magic's rules declare a draw only for loops of <em>mandatory</em> actions, and a
+HeroClix stalemate is sustained by choices, so that clause would never fire.</p>
+
+<table>
+<tr><th style="width:11rem">Option</th><th>Buys</th><th>Costs</th></tr>
+<tr><td><strong>Report the triple</strong><br><span class="sub">recommended in the package</span></td><td>Honest; invents no rule; the stalemate becomes <em>information</em> about the matchup.</td><td>Three numbers instead of one; the interface must explain the third.</td></tr>
+<tr><td>Turn cap</td><td>One number, and a horizon value is a legitimate lower bound rather than an approximation.</td><td>Invents a rule the rulebook does not have, and creates <strong>two</strong> game values per position — chess tablebases needed extra outcome classes for exactly this. Optimal play becomes horizon-dependent, so characters play differently near the cap for no reason in the rules.</td></tr>
+<tr><td>Discounting</td><td>Unique fixed point, easy to compute.</td><td>Reports a discounted expectation, which is <strong>not the probability of any event</strong> — and it specifically penalises slow wins, which are exactly the tanky matchups under analysis.</td></tr>
+<tr><td>Illegal repetition<br><span class="sub">as in Arimaa</span></td><td>Keeps two outcomes and zero-sum structure with no clock.</td><td>State must carry history, which <strong>breaks the Markov abstraction outright</strong>: the value stops being a function of the state and every memoised entry becomes history-conditional. Never put a repetition rule on a graph you intend to memoise.</td></tr>
+<tr><td>Put the clock back</td><td>Matches the real game.</td><td>Reverses the scope decision and drags victory points back in.</td></tr>
+</table>
+
+<div class="box">
+<h4>The cheap step that makes the choice matter less</h4>
+<p style="margin:.2rem 0 0">Computing the set of states from which a knock-out can be forced
+with probability 1 is a <strong>polynomial graph algorithm</strong> that runs before any dice
+arithmetic. It catches the Slade Wilson case in microseconds. If the start state is inside
+that region, the probability of never ending is 0 and all five options above agree to within
+rounding — so the question stops mattering for most matchups. If the start state is outside
+it, the honest output is "these two cannot resolve by knock-out", not a number. There is even
+a rules precedent: a <em>dead position</em> in chess is exactly this test written into a
+rulebook.</p>
+</div>
+
+<p><strong>Bundled with the termination rule is a second question that changes recommended
+moves, not just the report.</strong> With three outcomes there are two different zero-sum
+games, and the package does not yet say which one the engine solves:</p>
+
+<table>
+<tr><th style="width:8rem">Game</th><th>Objective</th><th>Consequence</th></tr>
+<tr><td><strong>G1</strong><br>reachability</td><td>A maximises the probability that A eliminates B; B minimises it.</td><td>A simple stochastic game with pure memoryless optimal strategies — <strong>but B is indifferent between winning and surviving forever</strong>, so B's optimal play includes pure stalling.</td></tr>
+<tr><td><strong>G2</strong><br>win / draw / loss</td><td>Outcomes valued +1 / 0 / −1.</td><td>B strictly prefers winning to stalling, so B plays differently.</td></tr>
+</table>
+
+<p>They coincide only when the probability of never ending is 0, and neither is recoverable
+from the other. Two numbers, not one.</p>
+
+<p class="sub">Good news, for what it is worth: for a finite two-player zero-sum
+perfect-information game <em>with chance nodes</em>, an optimal value exists and is attained
+in pure strategies. Dice cost nothing here. Both places where simultaneity could have crept
+in are explicitly sequential — the reroll contest is active-player-first, and the reducer
+choice is taken after damage is known.</p>
+
+<!-- ================================================================= -->
+<h2 id="anatomy">7. Data anatomy: upstream record to in-app state</h2>
+
+<p>Three boundaries, each with a different shape on either side.</p>
+
+<h3>Boundary 1 — upstream API to offline ingest</h3>
+
+<p>Forced by two measured constraints. The upstream API sends <strong>no CORS headers at
+all</strong>, verified with an origin request header and an explicit preflight; a browser
+cannot call it. Not slow, not rate-limited: impossible. And the full database is roughly
+<strong>80 MB</strong> of raw JSON — 14,667 units across 333 sets, records measured at 3.3 to
+8.1 KB — so bundling everything for offline use is off the table on mobile.</p>
+
+<div class="box box-dead">
+<p style="margin:0"><span class="chip chip-dead">Superseded</span> <strong>The documented
+ingest path has died since the specification was written.</strong> The set-filter query
+<code>units/?set_id=&lt;id&gt;</code> worked in the August audit and still worked on
+2026-09-17. On 2026-09-21 it returned an empty result set for every set. The working
+substitute carries the same list records but <strong>still no dials</strong>, so ingest costs
+<strong>one request per unit</strong> — 14,667 for the full database. Why it broke is
+<span class="chip chip-verify">unknown</span> — the API is undocumented, so there is no
+changelog, no status page and no contract to appeal to.</p>
+<p style="margin:.6rem 0 0"><span class="chip chip-verify">Verify</span> <strong>The package
+disagrees with itself about the largest single set.</strong> <code>SPEC_01</code> §3.5b names
+War of Light at <strong>274</strong> units as the largest, with 208 as the
+<em>second</em>-largest; <code>ADV_01_V2</code> §3.15 then reports "~208 for the largest
+single set". One of the two is wrong, and the figure sizes the worst-case per-set ingest, so
+re-count before planning against it.</p>
+</div>
+
+<p>Two further facts about this boundary, both discovered after the specification was
+written:</p>
+<ul>
+<li><strong>The dataset mutates.</strong> One set held 135 units on 2026-09-17 and 136 four
+days later. A committed snapshot is a point-in-time artifact, not a stable base.</li>
+<li><strong><code>robots.txt</code> asks automation to stay out of the API path</strong> — the
+exact path the planned ingest targets. It is a request, not a licence or a law, and the
+publisher itself directs players to that site for errata lookups. But a command-line tool
+pulling thousands of records is what that line addresses. It moves the licensing question from
+"no evidence either way" to "there is an explicit request, and the planned ingest runs against
+it". Scoping to Modern Age — 958 characters rather than 14,667 — shrinks the footprint by
+roughly fifteen times.</li>
+</ul>
+
+<h3>Boundary 2 — ingest to committed snapshot</h3>
+
+<p>The CLI filters to characters, trims to a simulation schema, validates, and <em>fails the
+run</em> on shape drift rather than writing corrupt data. Two corrections the package records
+about that trim:</p>
+
+<ul>
+<li>Dropping collector metadata is right, <strong>but one field must be retained</strong>:
+the property list carries force-construction legality — unique, prime, promotional — which
+rarity does not. Without it, force validation cannot work.</li>
+<li>Filter on the type field, which is rich and reliable, <strong>not</strong> on rank, which
+was <code>null</code> on all 25 sampled records.</li>
+</ul>
+
+<p>A global search index also ships with the app shell: one minimal row per unit across all
+sets, so a name search resolves to a set to load without a network call. At roughly 60 bytes
+per row that is well under 1 MB.</p>
+
+<h3>Boundary 3 — special-power prose to executable effect</h3>
+
+<p>This is the project's central difficulty, and a measurement settled its size. Standard
+powers are structured enumerations and execute directly. Special powers are free English
+prose, and a dial click may simply read <code>"special"</code>, pointing at it.</p>
+
+<pre>25 characters sampled at random (seed 7) from the 4 most recent sets
+  with at least one special power ..... 25/25 = 100%
+  prose length ........................ mean 372 characters, max 722
+  dial slots reading "special" ........ 127 / 688 filled slots = 18%
+  special power entries ............... 61 (trait 33, attack 11, damage 9, defense 6, speed 2)</pre>
+
+<p>So prose is the <strong>baseline</strong> for every contemporary figure, not an advanced
+case to add later. An engine covering only standard powers is not "mostly right" on modern
+figures — it is missing roughly 2.4 special powers and 372 characters of rules text per
+character, on 100% of them.</p>
+
+<p class="label"><strong>Proposed / draft</strong> — the Effect DSL encoding. There is no
+interpreter and <strong>no schema file</strong>, so this block cannot be called schema-valid;
+it is the specification's illustrative shape, with the verbatim source text restored:</p>
+
+<pre>{
+  "unit_id": "wk25DND25-001",
+  "power": "FRIGHTFUL PRESENCE",
+  "ruleset": "wizkids-2026-07-01",
+  "effects": [
+    { "when": "opposing_in_range", "modify": "attack", "delta": -1 },
+    { "grant": "SAFEGUARD", "arg": "outwit" }
+  ],
+  "source_text": "Opposing characters within range modify attack -1. // Young Red Dragon has SAFEGUARD: Outwit."
+}</pre>
+
+<p>Three properties are non-negotiable: the source text is retained verbatim beside every
+authored effect so an encoding can always be audited against the printed power; coverage is
+explicit, with every figure labelled <code>exact</code>, <code>partial</code> or
+<code>unmodelled</code> and every result carrying that label; and authoring is manual by
+decision.</p>
+
+<div class="box box-warn">
+<p style="margin:0"><strong>Scope leak worth knowing about.</strong> Victory points were ruled
+out of scope — but they are not only a scoring rule, they are a <em>trigger and an effect
+inside power text</em>. One card reads "score 25 victory points"; another "score 10 Victory
+Points"; ten more distinguish being <em>removed from the game</em> from being <em>scored</em>.
+So even a knock-out-only engine must emit a score event on a knock-out, because several powers
+key off whether scoring happened. The package's recommendation is to keep victory points out
+of the <em>victory condition</em> — which was the real decision — while carrying an inert
+counter so the DSL has somewhere to write. That is open question A16.</p>
+</div>
+
+<!-- ================================================================= -->
+<h2 id="vocabulary">8. Vocabulary: the words that do not exist</h2>
+
+<p>A glossary was requested because the author had not read the rules in years. The most
+useful part turned out to be the inverse of a glossary: <strong>terms in common use that the
+rulebook does not contain at all</strong>. Every zero below was verified by searching the
+extracted rulebook text. Getting these wrong produces code whose names do not match any rule.</p>
+
+<table>
+<tr><th style="width:11rem">Commonly said</th><th style="width:6rem">Occurrences</th><th>Say instead</th></tr>
+<tr><td>line of sight</td><td class="num">0</td><td><strong>line of fire</strong> (§11.4) — drawn centre to centre; blocked by characters, blocking terrain, walls, <em>and</em> terrain at a different elevation</td></tr>
+<tr><td>locked in combat</td><td class="num">0</td><td><strong>adjacent to an opposing character</strong> (§6.3), with three separate consequences: movement stops (§10.7b), moving requires a break away (§10.7c), and a range attack <strong>cannot be made at all</strong> (§11.2a)</td></tr>
+<tr><td>activation cost</td><td class="num">0</td><td>the <strong>action type</strong> required (§7.1) and whether it is <strong>costed or free</strong> (§7.4, §7.5). The budget is the force-wide Action Total (§7.9): 1 per 100 build points, minimum 2, maximum 10</td></tr>
+<tr><td>power color</td><td class="num">0</td><td>"corresponding-coloured square" (§18.1), informally the gem. A <em>granted</em> power has no square at all</td></tr>
+<tr><td>trait power</td><td class="num">0</td><td><strong>trait ability</strong> (§19.2), or "a standard power granted by a trait" (§18.6). Abilities are game text without a dial square; traits <em>grant</em> powers, they are not powers</td></tr>
+<tr><td>ruling <span class="sub">(meaning a ruleset)</span></td><td class="num">0</td><td>the <strong>rulebook update date</strong>, or <strong>format</strong> for legality. Elsewhere a <em>ruling</em> means a single adjudication</td></tr>
+<tr><td>range 0 figure</td><td class="num">0</td><td>"a character with a <strong>range value of 0</strong>" — range is the fifth combat value, printed on the base, and does not change with clicking</td></tr>
+<tr><td>figure <span class="sub">(as a rules subject)</span></td><td class="num">28, all&nbsp;physical</td><td><strong>character</strong> (796 uses) for a rules subject; <strong>game element</strong> (177) for the umbrella covering objects, markers and equipment</td></tr>
+<tr><td>unit</td><td class="num">0</td><td>that is the data source's vocabulary, not the game's. The data provider's noun is not the rulebook's noun</td></tr>
+</table>
+
+<h3>Distinctions the rules make that code usually collapses</h3>
+<ul>
+<li><strong>Damage dealt is not damage taken</strong> (§12.4a versus §12.5a), separated by the
+reducer step. A field named just <code>damage</code> will be wrong half the time.</li>
+<li><strong>A modifier is not a replacement value</strong> (§6.7 versus §6.8), with different
+application order — replace then modify, a <em>Golden</em> rule (§13.1) — and <strong>only
+modifiers are capped</strong> by the Rule of Three (§14.2, a <em>Silver</em> rule, so card text
+may overrule it). Halving and doubling are replacements. A single list of modifiers cannot
+represent this.</li>
+<li><strong>Powers never stack from multiple sources</strong> (§20.7, §20.8, §21.11). A
+character's power set is a <em>set</em>, not a multiset.</li>
+<li><strong>A square is a stack, not a cell with one occupant.</strong> Only two characters in
+one square, and anything on undestroyed blocking terrain, are forbidden; multiple markers may
+share a square, and the topmost non-object marker defines the terrain. Debris, smoke and
+barrier are markers that <em>set</em> terrain, not terrain types.</li>
+<li><strong>There is no <em>round</em> in HeroClix</strong> — players alternate turns. The word
+appears twice, as "round up" and "round base". A loop variable named <code>round</code> will
+collide with rounding.</li>
+</ul>
+
+<p>Words the project must coin, because the rulebook has none: <code>game state</code>,
+<code>dial_size</code>, <code>legal action set</code>, board <code>coordinates</code>,
+<code>policy</code>, <code>probability</code> and <code>expected value</code> — the only
+occurrences of "probability" in the rulebook are the power name Probability Control —
+<code>engagement</code>, and <code>threat range</code>.</p>
+
+<p class="sub"><span class="chip chip-dead">Historical</span> Terms still printed in the
+rulebook but <strong>retired</strong>, which a scraper will happily ingest as live: Windows,
+Doors, Light and Heavy Objects, Colossal Stamina, Autopilot. Also note that
+<strong>pushing no longer exists</strong> — zero occurrences in the current rulebook, ten in
+the 2018 edition — and <strong>feats do not exist</strong>; the modern equivalents are
+Equipment, Resources, ID Cards, One-Shots, Tarot, Mystery Cards, Locations and Special
+Terrain.</p>
+
+<!-- ================================================================= -->
+<h2 id="testing">9. Testing and the operational lifecycle</h2>
+
+<p>Deliberately separate from the runtime story above, because it is a different lifecycle
+with different owners.</p>
+
+<table>
+<tr><th style="width:12rem">Layer</th><th>Gate</th></tr>
+<tr><td>Attack math</td><td>Table-driven cases from the rulebook: minimum roll needed, the hit/miss boundary, critical hit and critical miss, the +1 on a critical hit, 1 unavoidable damage on a critical miss.</td></tr>
+<tr><td>Critical versus Super Senses</td><td>Explicit regression test: on a 12, <strong>no evade roll occurs</strong>.</td></tr>
+<tr><td>Damage reducers</td><td>Explicit regression test: Toughness and Invulnerability do <strong>not</strong> stack, and the reducer chosen is the damage-minimising one.</td></tr>
+<tr><td>Distributions</td><td>Every distribution sums to 1.0 within float tolerance.</td></tr>
+<tr><td>Exact versus Monte Carlo</td><td><strong>The headline gate.</strong> Sampling over a single attack must converge to the exact answer within a confidence interval. Divergence fails the build.</td></tr>
+<tr><td>Determinism</td><td>Same seed, byte-identical transcript. Blocked today by the unseedable generator in the prototype.</td></tr>
+<tr><td>Degenerate matchups</td><td>The double-Impervious mirror returns the triple, and <code>P(A) / (P(A) + P(B))</code> does not reach a user interface as NaN.</td></tr>
+<tr><td>Line of fire</td><td>Geometry gate — <strong>live-verified as rendered</strong>, not merely green. Code inspection and passing tests do not establish correctness for geometry.</td></tr>
+</table>
+
+<div class="box box-warn">
+<h4>Half the build ladder cannot have golden-file tests, by construction</h4>
+<p>GNU Backgammon ships two solvers, and the split is instructive. Its no-contact database is
+<strong>acyclic</strong>: two nested loops in topological order, one pass, exact — and the
+project publishes an MD5 for every such database. Its contact database is
+<strong>cyclic</strong>: value iteration seeded at zero, looping until a residual norm falls
+below a threshold. Its manual states the consequence outright — it is not possible to give a
+checksum for these, because the result depends on the convergence threshold, the number of
+restarts and rounding errors.</p>
+<p style="margin-bottom:0"><strong>This ladder crosses exactly that line.</strong> Rungs
+without healing are acyclic: exactly solvable, bit-reproducible, golden-file testable. The
+moment Regeneration or Support enters, the state graph has cycles, the solver becomes
+iterative, and its output is <strong>not bit-identical across machines by construction, not
+by bug</strong>. Test those rungs to a tolerance pinned to the convergence threshold, and
+write that into the specification before someone files it as a defect.</p>
+</div>
+
+<h3>Two operational problems with no clean answer yet</h3>
+<ul>
+<li><strong>Errata rewrites dial data, and there is no feed.</strong> Figure-level errata is
+frequent and changes more than card text — real examples correct the values on a specific
+click, add a standard power to a dial, or change a range value. <strong>This is the class of
+errata that silently corrupts a dial database.</strong> The canonical list is a forum thread,
+maintained in place with an update log whose last entry postdates the rulebook pin; it is
+prose, paginated, edited without diffs, and the host serves a bot challenge, so a plain HTTP
+client cannot read it. The rulebook puts the burden on the owning player; for a simulator that
+becomes an ingest problem with no source. <span class="chip chip-verify">Verify</span> whether
+the upstream data is errata-corrected at all — the working assumption is that it is not.</li>
+<li><strong>Sample size is the real constraint on a phone, not per-game cost.</strong>
+Distinguishing a 52% win rate from 50% needs <strong>4,904</strong> full games; 55% from 50%
+needs 783; a reported rate with a ±1 point confidence interval needs 9,604. A force-comparison
+claim of "52% versus 50%" is five thousand simulated games.</li>
+</ul>
+
+<!-- ================================================================= -->
+<h2 id="ladder">10. Later phases: the build ladder</h2>
+
+<p>Kept visibly separate from everything above, because none of it is close. The project's
+own plan is to <strong>design top-down and build bottom-up</strong>, where top-down's job is
+to see the dead ends early and own the testing and visualisation, while bottom-up picks the
+shape of each solution. That division is sound, and this review round is evidence for it:
+the termination hole, the line-of-fire dependency and the generator problem would all have
+surfaced as rework at rungs 5, 1 and 2 respectively.</p>
+
+<p>The ladder runs roughly: probability of hit → turn progression with two adjacent
+characters of range 0 → one strong character against several → many against many on a trivial
+map → back to 1v1 adding powers one at a time → then open map, then range, then ranged powers,
+then custom testable maps, recombining each time. Two orderings in it are wrong:</p>
+
+<table>
+<tr><th style="width:12rem">Rung</th><th>Problem</th><th style="width:7.5rem">Status</th></tr>
+<tr><td>Rung 1, line of fire deferred</td><td>Probability Control requires range <strong>and line of fire</strong>, so line of fire is load-bearing at the first rung, not the twelfth. Whether to model Probability Control at rung 1 — forcing a minimal line-of-fire model early — or to defer it and label rung-1 numbers "no Probability Control" is open question A15.</td><td><span class="chip chip-dead">Reordering needed</span></td></tr>
+<tr><td>Rung 1, "no powers"</td><td><strong>No such character exists.</strong> Across the full rosters of 13 Modern sets, <strong>0 of 958 characters</strong> have no powers; the floor is one special power and three filled standard-power slots. The only power-free elements in the dataset are bystander tokens, and they cannot reach a map except via a generator whose own trait grants Probability Control.</td><td><span class="chip chip-dead">Needs synthetic figures</span></td></tr>
+</table>
+
+<p>The recommendation is to build the early rungs against <strong>synthetic</strong> figures
+and say so deliberately in the test names, adopting the Green Construct's real printed stat
+line — 5 / 10 / 17 / 3, one click — as the canonical synthetic figure. That is open question
+A14.</p>
+
+<p class="sub">Two further things the ladder will need sooner than it expects: an
+<strong>auto-resolve default for every optional prompt</strong> — without one, an engine with
+this many optional triggers is simultaneously unplayable and unsimulatable, because every
+Impervious roll, evade and reducer choice would block — and a <strong>duration concept</strong>,
+since "this game" is the most common special-power qualifier in the sampled data and a state
+model with no durations cannot express it.</p>
+
+<!-- ================================================================= -->
+<h2 id="open">11. Open decisions that belong to Ivan</h2>
+
+<p>Nine questions are outstanding, numbered continuously across the review loop. They are
+listed in the order that unblocks the most work. <strong>Answering them is the next turn in
+the loop</strong>, not a formality.</p>
+
+<table>
+<tr><th style="width:4rem">#</th><th>Question</th><th style="width:7.5rem">Blocks</th></tr>
+<tr><td><strong>A12</strong></td><td><strong>The termination rule</strong> — the triple, a turn cap, illegal repetition, or put the clock back? Bundled with it, because it changes recommended moves and not just the report: is the engine solving <strong>G1</strong> reachability, where the losing side is indifferent between stalling forever and winning, or <strong>G2</strong> at +1/0/−1, where stalling is strictly worse? <a href="#termination">§6</a></td><td>What the engine <em>outputs</em></td></tr>
+<tr><td><strong>A11</strong></td><td>Is "approximate — N effects unmodelled" the <strong>default</strong> state of a result for a modern figure, or must a figure be fully authored before the engine reports on it at all? <span class="sub">Re-asked: choosing a DSL settles <em>how</em> specials get modelled, not what happens to the ones that are not yet authored.</span></td><td>The DSL's scope and ongoing cost</td></tr>
+<tr><td><strong>A18</strong></td><td>Revise <code>SPEC_01</code> as the next top-down deliverable, before any rung is built? Four of its statements are known dead. <a href="#status">§2</a></td><td>Every rung</td></tr>
+<tr><td><strong>A13</strong></td><td>Does the rules layer move to plain-data state with <code>step</code> and <code>apply</code>, and does <code>SPEC_01</code> §7.2 get rewritten accordingly? <a href="#mechanism">§5</a></td><td>The rules engine</td></tr>
+<tr><td><strong>A15</strong></td><td>Model Probability Control at rung 1, forcing a minimal line-of-fire model early — or defer it and label rung-1 numbers accordingly?</td><td>Ladder order</td></tr>
+<tr><td><strong>A14</strong></td><td>Accept synthetic test figures for rungs 1 to 3, using the Green Construct stat line?</td><td>Rungs 1–3</td></tr>
+<tr><td><strong>A16</strong></td><td>Carry an inert victory-point counter, so powers that say "score 25 victory points" have somewhere to write? <a href="#anatomy">§7</a></td><td>The DSL's expressiveness</td></tr>
+<tr><td><strong>A17</strong></td><td>Does ingest target Modern-legal only — 958 characters — and does the <code>robots.txt</code> finding change the approach to the data publishers?</td><td>Ingest and licensing</td></tr>
+<tr><td><strong>A19</strong></td><td>Proceed on the stated working assumptions for the six open rules questions, or seek a published ruling first?</td><td>Rules fidelity</td></tr>
+</table>
+
+<h3>Six rules questions with no answer in the rules</h3>
+<p>Each is carried with a working assumption so work can proceed, rather than being rounded
+to a guess: whether a failed break away still costs an action token (assumed yes); whether one
+card's "reroll the roll they rerolled" re-enters the reroll contest or resolves once (assumed
+once, otherwise enumeration is unbounded); whether another card's Blades reroll is once per
+roll or unlimited (assumed once); how the four custom dice interact with the rule that non-d6
+rolls cannot be rerolled (assumed not rerollable); whether a One-Shot's "in addition to other
+effects" overrides the one-reducer limit (assumed it overrides, because card text beats a
+Silver rule); and whether the upstream dials are errata-corrected (assumed not).</p>
+
+<h3>Decisions deliberately left open from the specification</h3>
+<ul>
+<li><strong>Game AI search strategy</strong> <span class="chip chip-deferred">Deferred</span>
+— research is complete and must not be redone. The decisive finding: TD-Gammon reached
+world-class play at one to two ply because dice wash out the difference between deep lines, so
+search depth has sharply diminishing returns while evaluation quality does not. Invest in
+evaluation, search shallow. Note also that star-minimax pruning is a constant factor, not a
+change of exponent, so it does not move the state-space wall.</li>
+<li><strong>Map representation and the line-of-fire model</strong> — the largest single
+technical risk, and now needed earlier than planned. The geometry data already exists
+upstream: 737 maps, 68 of them Modern-legal, with per-square terrain and elevation, walls as
+lattice segments, starting-zone flags and format legality. So this is purely a geometry
+decision, not a digitisation project. Budget for diagonal intersections that evaluate both
+flanking sides and take the least restrictive, elevation-pair blocking, walls on edges, and
+two different metrics for the same action — range counts outward including diagonals, while
+line of fire is drawn centre to centre.</li>
+<li><strong>Data licensing</strong> — three-sided and unresolved. Neither data source
+publishes a licence or terms; one has a <code>robots.txt</code> that disallows the API path;
+and the underlying dial and map content belongs to the publisher. No evidence of enforcement
+against fan tools was found, <strong>which is not permission</strong>. Parked as important but
+not urgent.</li>
+</ul>
+
+<div class="box">
+<p style="margin:0"><strong>Why "line of fire" keeps being named the risk.</strong> It is
+where comparable projects have died, not where they started. A 2009 effort built a working
+terrain model and stopped dead at line of sight; the only two HeroClix tools built in 2026
+exist <em>solely</em> to compute line of fire and do nothing else. And no shipped play aid has
+ever attempted board-state entry — every tracker routes around it. That is the context for
+ruling the live-match play aid out of scope.</p>
+</div>
+
+<!-- ================================================================= -->
+<h2 id="docs">12. Further detail: the document map</h2>
+
+<p>This page is an orientation layer. These five documents are the authority, and they
+supersede anything here if they disagree. Read them in this order.</p>
+
+<table>
+<tr><th style="width:13rem">Document</th><th>Why it matters</th><th style="width:7.5rem">Status</th></tr>
+<tr><td><a href="../SPEC_01_HEROCLIX_SIMULATOR.md">SPEC_01_HEROCLIX_SIMULATOR.md</a><br><span class="sub">661 lines</span></td><td>The primary specification: goal, ground-truth audit with citations, architecture, scope, detailed design, module map, implementation order, test matrix, acceptance criteria, open questions Q1–Q10. Still the best single description of intent — and <strong>four of its statements are known dead</strong> (<a href="#status">§2</a>). Its §3 rules audit remains sound.</td><td><span class="chip chip-current">Authority</span>, partly stale</td></tr>
+<tr><td><a href="../ADV_01.md">ADV_01.md</a><br><span class="sub">118 lines</span></td><td>The raw idea dump that started the review loop: the story, four user stories, and a bottom-up data model. Read it for intent, not for facts — it is the document the later rounds argue with.</td><td><span class="chip chip-dead">Historical</span></td></tr>
+<tr><td><a href="../ADV_01_V2.md">ADV_01_V2.md</a><br><span class="sub">749 lines</span></td><td>First adversarial pass. 25 claims adjudicated. Where the victory-point finding, the "pushing no longer exists" finding, the 36-outcome dice space, the dial-length and special-power measurements, and the map-data discovery all come from. Also the first honest process disclosure: three of seven research agents were killed by a token cap, and its game-theory section is marked as reasoning rather than cited.</td><td><span class="chip chip-current">Authority</span></td></tr>
+<tr><td><a href="../ADV_V03.md">ADV_V03.md</a><br><span class="sub">181 lines</span></td><td>Ivan's answers to A1–A10 plus the general directives: top-down design with bottom-up build, the scope boundary, and the 18-rung ladder. <strong>This is where the scope decisions live</strong> — play aid out, Modern Age only, knock-out only, head-to-head, two players.</td><td><span class="chip chip-current">Authority</span></td></tr>
+<tr><td><a href="../ADV_V04.md">ADV_V04.md</a><br><span class="sub">797 lines</span></td><td><strong>The newest round and the current authority where documents conflict.</strong> Refutes the termination assumption, the ladder ordering and both proposed substrates; carries the glossary, the errata section, the state-space table, and questions A11–A19.</td><td><span class="chip chip-current">Authority</span></td></tr>
+</table>
+
+<h4>The 2024 prototype, folded in when the repository was renamed</h4>
+<table>
+<tr><td style="width:13rem"><a href="../proto.js">proto.js</a></td><td>Dice rolling, distribution building, the comparison helpers, and a first combat function. <strong>Four known defects</strong> (<a href="#status">§2</a>).</td><td style="width:7.5rem"><span class="chip chip-current">Current</span></td></tr>
+<tr><td><a href="../mechanics.txt">mechanics.txt</a></td><td>A four-phase ladder — close combat, then powers, then point-blank ranged, then several pieces — which the package repeatedly notes is <strong>better-shaped scope sequencing</strong> than the specification's own nine-phase table.</td><td><span class="chip chip-current">Current</span></td></tr>
+<tr><td><a href="../roadmap.txt">roadmap.txt</a></td><td>What the 2024 effort finished and what it was about to do next.</td><td><span class="chip chip-dead">Historical</span></td></tr>
+<tr><td><a href="../README.md">README.md</a></td><td>Repository front door. Note its document index lists only three of the five documents and is <strong>out of date</strong>.</td><td><span class="chip chip-dead">Stale</span></td></tr>
+</table>
+
+<h4>Rules sources</h4>
+<p>All section references on this page are to the <strong>HeroClix Comprehensive Rulebook,
+updated 7.01.2026</strong> (27 numbered sections), with the Powers and Abilities Card
+<strong>MV50, dated 2023-03-15</strong>. Both were re-confirmed current on 2026-09-21, and no
+published errata amends any of the nine rules the engine depends on. Neither document is
+redistributed in this repository; the package cites them by section.</p>
+
+<p class="sub">One extraction trap worth carrying forward: the rulebook's §27 appendix is the
+better machine-readable source for the power table, because its dice render as extractable
+characters where the ability card's are images. But the clause granting knockback on doubles
+is <em>also</em> images, and vanishes under text extraction — a pipeline built on extracted
+text would conclude that doubles do nothing. It was caught only by rendering the page as an
+image and reading it, as were the critical-hit thresholds.
+<strong>Render pages whenever a threshold or a dice condition is involved.</strong></p>
+
+<footer>
+<p><strong>oraclix is an unofficial fan project.</strong> HeroClix is a trademark of
+WizKids/NECA. This page describes a design, and <strong>a design site is not evidence that
+anything is deployed, implemented or working</strong> — see <a href="#status">§2</a> for what
+exists today, which is five documents and a 103-line prototype.</p>
+<p>Built from the package at commit <code>50af635</code>. Where this page and a document
+disagree, the document wins; where two documents disagree, the newest wins and this page says
+so. Sections whose claims could not be settled from the package carry a
+<span class="chip chip-verify">Verify</span> chip rather than a plausible answer.</p>
+<p><strong>Two review gates are still open on this page itself.</strong> Its links, in-page
+anchors, self-containment, JSON parsing and type sizes pass the mechanical checker, and every
+figure in <a href="#walkthrough">§4</a> was recomputed independently. But it has
+<strong>not</strong> been opened in a browser at desktop and phone width, and <strong>no
+independent reader</strong> has yet tried to answer the six orientation questions from it
+without reading the specification first. Until both are done, treat it as a reading aid rather
+than implementation guidance.</p>
+</footer>
+
+</div>
+<a class="backlink" href="#">↑ Contents</a>
+</body>
+</html>
