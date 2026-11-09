@@ -6,15 +6,29 @@ The aim is to answer questions the table can only guess at — who wins this mat
 does this power actually buy, which of two figures is better — with exact numbers where the
 maths allows and honest simulation where it doesn't.
 
-Status: **planning and research.** No application code yet beyond the 2024 prototype below.
+Status: **planning and research.** No application code yet beyond the 2024 prototype
+below — the documents and the orientation page are the deliverable so far.
+
+## Start here
+
+**`explainer-site/index.html`** — a self-contained orientation page over the whole package.
+Open it in a browser; no build step, no network, nothing to install. It reconciles the five
+documents below, marks what is current against what is only proposed, and traces three
+attacks end to end. It is a reading aid, not an authority: where it and a document disagree,
+the document wins.
 
 ## Documents
 
+Read in this order. The review loop is adversarial, so **later rounds correct earlier ones** —
+`ADV_V04.md` is the current authority wherever two of them disagree.
+
 | File | What it is |
 |---|---|
-| `SPEC_01_HEROCLIX_SIMULATOR.md` | The plan — architecture, scope, implementation phases, test matrix, open questions |
-| `ADV_01.md` | The raw idea dump: story, user stories, bottom-up data model |
-| `ADV_01_V2.md` | An adversarial pass over that dump — every claim verified, refuted or corrected against the rules and live data, plus ten questions back to the author |
+| `SPEC_01_HEROCLIX_SIMULATOR.md` | The plan — architecture, scope, implementation phases, test matrix, open questions. Still the best single statement of intent, but **four of its statements are known dead** and it has not been revised since 2026-08-19 |
+| `ADV_01.md` | The raw idea dump: story, user stories, bottom-up data model. Read for intent, not for facts |
+| `ADV_01_V2.md` | First adversarial pass over that dump — 25 claims verified, refuted or corrected against the rules and live data, plus questions A1–A10 back to the author |
+| `ADV_V03.md` | The answers to A1–A10, plus the general directives: top-down design, bottom-up build, the scope boundary and the build ladder. **The scope decisions live here** — play aid out, Modern Age only, KO-only, head-to-head, 2-player |
+| `ADV_V04.md` | Second adversarial pass, over those directives. Refutes the termination assumption, the ladder ordering and both proposed substrates; carries the glossary, the errata section and questions A11–A19 |
 
 ## Prototype
 
