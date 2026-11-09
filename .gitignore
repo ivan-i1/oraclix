@@ -2,6 +2,10 @@
 # STATUS.md / INDEX.md live here by house convention.
 claude/
 
+# Harness-managed directory. Holds git worktrees under .claude/worktrees/,
+# which are checkouts of this same repo and must never be tracked by it.
+.claude/
+
 # Node / build
 node_modules/
 dist/
